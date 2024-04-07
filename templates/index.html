@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script>
+    <style>
+        html,
+        body,
+        h1,
+        h2,
+        h3,
+        div,
+        span,
+        a,
+        button,
+        input {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: rgb(235, 235, 235);
+        }
+
+        .wrap {
+            background-color: #f2f4f8;
+            width: 350px;
+            height: 700px;
+            margin: auto;
+        }
+
+        .flex-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wrap-todo {
+            padding: 16px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 16px;
+        }
+
+        .todo {
+            padding: 16px;
+            background-color: white;
+            border-radius: 8px;
+            width: 300px;
+            height: 50px;
+
+            margin-bottom: 8px;
+        }
+
+        .todo-content {
+            margin-left: 8px;
+            margin-right: auto;
+        }
+
+        .todo>input {
+            zoom: 1.5;
+        }
+
+        .add-form {
+            padding: 16px;
+            background-color: #fff6f8;
+            border: 1px solid red;
+            border-radius: 8px;
+            width: 300px;
+            height: 50px;
+            display: none;
+        }
+
+        .add-form-btns {
+            margin-left: auto;
+        }
+
+        .add-form-btns>button {
+            margin: 0px 4px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .add-form>input {
+            background-color: transparent;
+            border: none;
+            font-size: 16px;
+            width: 200px;
+        }
+
+        .add-form>input:focus-visible {
+            outline: none;
+        }
+
+        .add-btn {
+            padding: 16px;
+            background-color: transparent;
+            border: 1px dashed gray;
+            border-radius: 8px;
+            width: 300px;
+            height: 50px;
+            cursor: pointer;
+        }
+
+        .add-btn>span {
+            margin-bottom: 5px;
+        }
+
+        .add-btn>button {
+            margin-left: 8px;
+            margin-right: auto;
+            background-color: transparent;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .todo > button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            color: red;
+        }
+        .todo-content-modify >input{
+            border: none;
+            margin-left: 8px;
+            margin-right: auto;
+            font-size: 10px;
+            color: gray;
+            width: 160px;
+        }
+        .todo-content-modify >input:focus-visible{
+            outline: none;
+        }
+        .todo-content-modify > button{
+            margin: 0px 8px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .calendar{
+            background-color: white;
+        }
+        .calender > h2{
+            margin: 16px 0px;
+            cursor: pointer;
+        }
+        .days{
+            display: grid;
+            grid-template-columns: repeat(7,1fr);
+            grid-gap: 18px;
+            margin-bottom: 20px;
+        }
+        .days > div{
+            width: 30px;
+            height: 30px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+        .red{
+            color: red;
+        }
+        .blue{
+            color: blue;
+        }
+        .dates{
+            display: grid;
+            grid-template-columns: repeat(7,1fr);
+            grid-gap: 18px;
+            margin-bottom: 20px;
+        }
+        .dates > div{
+            width: 30px;
+            height: 30px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+        .dates > div.clicked{
+            background-color: black;
+            border-radius: 50%;
+            color: white;
+        }
+    </style>
+    <script>
+        $(document).ready(() => {
+            listContent();
+            loadCalender();
+            todayClicked();
+        })
+        function loadCalender(){
+            let today=new Date();
+            let year= today.getFullYear();
+            let month= today.getMonth()+1;
+            $(`#this-month`).text(`${year},${month}월`);
+
+            let first_day = (new Date(year,month-1,1)).getDay();
+            let last_day = (new Date(year,month,0)).getDay();
+
+            for(let i=0; i<first_day; i++){
+                let temp_html = `<div></div>`
+                $('#dates').append(temp_html);
+            }
+
+            for(let i=0; i<last_day; i++){
+                let id= `${year}-${month}-${i+1}`
+                
+            }
+        }
+        function showAddForm() {
+            $('#add-form').css('display', 'flex');
+            $('#add-btn').hide();
+        }
+        function hideAddForm() {
+            if (confirm("취소를 선택하셨습니다")){
+                $('#add-form').hide();
+                $('#add-btn').css('display', 'flex');
+            }
+        }
+
+        function addContent() {
+            let content = $("#content").val()
+            let formData = new FormData()
+            formData.append("content_give", content)
+
+            fetch('/post', { method: "POST", body: formData }).then(res => res.json()).then(data => {
+                alert(data["msg"])
+                window.location.reload()
+            })
+        }
+        function listContent() {
+            fetch("/list").then(res => res.json()).then(data => {
+                let rows = data['result'];
+                rows.forEach((row) => {
+                    let content = row['content']
+                    let temp_html = `<div class="todo flex-row">
+                                        <input type="checkbox">
+                                        <span class="todo-content">${content}</span>
+                                    </div>`
+                    $('#todos').append(temp_html)
+                });
+            })
+        }
+        function showUpdateForm(_id){
+            $(`#${_id} > span`).hide();
+            $(`#${_id} > button`).hide();
+            $(`#${_id} > input`).hide();
+            $(`#${_id} > div`).css('display','flex');
+        }
+        function hideUpdateForm(_id){
+            $(`#${_id} > span`).hide();
+            $(`#${_id} > button`).hide();
+            $(`#${_id} > input`).hide();
+            $(`#${_id} > div`).css('display','none');
+        }
+        function modifyContent(_id){
+            let new_content = $(`#${_id} > div > input`).val();
+            let formData=new FormData()
+            formData.append("id_give",_id);
+            formData.append("content_give",new_content);
+
+            fetch('/modify',{method: "POST",body:formData}).then(res => res.json()).then(data => {
+                alert(data["msg"])
+                window.location.reload()
+            })
+        }
+        function deleteContent(_id){
+            let formData=new FormData()
+            formData.append("id_give",_id)
+
+            fetch('/delete',{method: "POST",body:formData}).then(res => res.json()).then(data => {
+                alert(data["msg"])
+                window.location.reload()
+            })
+        }
+        function checkContent(_id){
+            let is_checked = $(`#${_id} > input`).is(':checked')
+            let formData= new FormData()
+            formData.append("id_give",_id)
+            formData.append("check_give",is_checked)
+
+            fetch('/check',{method: "POST",body:formData}).then(res => res.json()).then(data => {
+                alert(data["msg"])
+                window.location.reload()
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="calender flex-col">
+            <h2 onclick="todayClicked()" id="this-month"></h2>
+            <div class="days">
+                <div class="red">일</div>
+                <div>월</div>
+                <div>화</div>
+                <div>수</div>
+                <div>목</div>
+                <div>금</div>
+                <div class="blue">토</div>
+            </div>
+            <div class="dates" id="dates"></div>
+        </div>
+        <div class="wrap-todo flex-col">
+            <h1>오늘의 할 일</h1>
+            <div id="todos" class="todos flex-col">
+                <div class="todo flex-row">
+                    <input type="checkbox">
+                    <span class="todo-content">사과 사오기</span>
+                </div>
+            </div>
+            <div id="add-form" class="add-form">
+                <input id="content" type="text">
+                <div>
+                    <button onclick="addContent()">추가</button>
+                    <button onclick="hideAddForm()">취소</button>
+                </div>
+            </div>
+            <div id="add-btn" onclick="showAddForm()" class="add-btn flex-row">
+                <span>+</span>
+                <button>추가하기</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
