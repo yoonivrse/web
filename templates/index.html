@@ -200,6 +200,8 @@
             flex-direction: row;
             align-items: center;
             justify-content: center;
+
+            cursor: pointer;
         }
         .dates > div.clicked{
             background-color: black;
@@ -217,10 +219,10 @@
             let today=new Date();
             let year= today.getFullYear();
             let month= today.getMonth()+1;
-            $(`#this-month`).text(`${year},${month}월`);
+            $(`#this-month`).text(`${year}년 ${month}월`);
 
             let first_day = (new Date(year,month-1,1)).getDay();
-            let last_day = (new Date(year,month,0)).getDay();
+            let last_day = (new Date(year,month,0)).getDate();
 
             for(let i=0; i<first_day; i++){
                 let temp_html = `<div></div>`
@@ -229,8 +231,35 @@
 
             for(let i=0; i<last_day; i++){
                 let id= `${year}-${month}-${i+1}`
-                
+                let target_day = (new Date(year,month-1,i+1)).getDay()
+                let color='';
+                if(target_day==0){
+                    color='red'
+                }
+                else if(target_day ==  6)
+                {
+                    color='blue'
+                }
+                let temp_html = `<div class="${color}" onclock="addClicked('${id}')" id="${id}">${i+1}</div>`
+                $('#dates').append(temp_html);
             }
+        }
+
+        function addClicked(id){
+            $('#dates > div').removeClass('clicked')
+            $(`#${id}`).addClass('clicked')
+
+            $('#today-todo').text(`${id}.오늘의할일`)
+        }
+        function todayClicked()
+        {
+            let today= new Date();
+            let year = today.getFullYear();
+            let month = today.getMonth()+1;
+            let date = today.getDate();
+
+            let id=`${year}-${month}-${date}`
+            $(`#${id}`).trigger('click');
         }
         function showAddForm() {
             $('#add-form').css('display', 'flex');
@@ -258,9 +287,25 @@
                 let rows = data['result'];
                 rows.forEach((row) => {
                     let content = row['content']
-                    let temp_html = `<div class="todo flex-row">
-                                        <input type="checkbox">
-                                        <span class="todo-content">${content}</span>
+                    let id=row['_id']
+                    let check = row['check']
+
+                    let txt_checked=''
+                    let txt_style =''
+                    if(check == 'true')
+                    {
+                        txt_checked='checked'
+                        txt_style='style="text-decoration:line-through"'
+                    }                    
+                    let temp_html = `<div id="${_id}" class="todo flex-row">
+                                        <input ${txt_checked} type="checkbox" onchange="checkContent('${_id}')">
+                                        <span ${txt_style} onclick="showUpdateForm('${_id}')" class="todo-content">${content}</span>
+                                        <button onclick="deleteContent('${_id}')">삭제</button>
+                                        <div style="display: none;" class="todo-content-modify flex-row">
+                                            <input type="text" value="${content}">
+                                            <button onclick="modifyContent('${_id}')" >수정</button>
+                                            <button onclick="hideUpdateForm('${_id}')" >취소</button>
+                                        </div>
                                     </div>`
                     $('#todos').append(temp_html)
                 });
@@ -345,6 +390,7 @@
             <div id="add-btn" onclick="showAddForm()" class="add-btn flex-row">
                 <span>+</span>
                 <button>추가하기</button>
+                
             </div>
         </div>
     </div>
